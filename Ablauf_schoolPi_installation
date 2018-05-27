@@ -1,0 +1,69 @@
+Ablauf Massenauslieferung Pi
+
+frühe Vorversion - Stand 27.Mai 2018
+
+Vorbereitung
+# RaspberryPiMasterServer
+** Webserver für die Scripte aufsetzen
+--- PATH_RaspberryPiMasterServer="schoolPi/RPI_prepare"
+			Hier liegen die files:
+			 RaspberryPiMasterServerKey.gpg
+			 init_script.tar.gz.gpg
+--- userdaten-Verzeichnisse
+			 
+** gdp-key auf dem RMS - Fingerprint in Script prepare_RasperryPi_user.sh
+--- FINGERPRINT_PUPLIC_KEY="4DF6F07704F910FBD2D4622401CDF90F5F8D071F"
+** öffentlicher key auf RMS ablegen
+--- FILE_WITH_PUBLIC_KEY="RaspberryPiMasterServerKey.gpg"
+
+** init_script.tar.gz.gpg mit dem Private-Key verpacken
+--- FILE_TO_GET="init_script.tar.gz.gpg"
+---		Inhalte: 
+				* prepare_step2.sh
+				* create_Pi_users.sh
+				* schoolPi_setup.sh
+
+# auf der SD Karte der Raspbery Pi
+** prepare_RasperryPi_user.sh
+		Anpassungen des RPi an das System
+		Holen des  init_script - Prüfen, Kopieren, extrahierne und 
+		ausfüren von prepare_step2.sh
+-- /prepare_step2.sh
+		- fragen nach dem aktuellen User und holen der Userspezifischen Werte vom RMS
+		- prüfen, kopieren, extrahieren und ausführen
+-- /create_Pi_users.sh
+		- einlesen der Userdaten
+		- anlegen der User
+			- sshPi - für den ssh Zugang 
+				+ crypted Password für sshPi ist hinterlegt
+			- PiAdmin - für den sudouser
+				+ crypted Password für PiAdmin ist hinterlegt
+			- einrichten des User
+				+ crypted Password für user wird angelegt als nnnn1234
+
+			- gdp für den User
+			- einrichten von ssh-Zugangsregeln
+			- einrichten der .history für den sshPi
+			- anpassen der gruppe sudousers
+			- vorbereiten des delete User Pi ->evtl. auslagern auf schoolPi_setup.sh?
+			- anlegen der cronjobs für 
+				* in Schulnetz - hole Aktuallisierungen
+				* täglich tar /home/user - rotate? 
+				* im Schulnetz -übertrage /home/user.gdp - prüfe übertragung - checksum?
+			- scp "done auf den RMS - "
+		- starte schoolPi_setup.sh						
+-- /schoolPi_setup.sh
+		Aufgabe: Anpassen das RPI
+		- update / upgrade
+		- Sprache de
+		- locale de_DE
+		- timezone europe/Berlin
+		- keyboard 105Tasten de
+		- Wifi Country Germany
+		- hostname und hostes
+		- ssh/ssh_host_rsa_key.pub und ssh/ssh_host_dsa_key.pub
+		- Expandieren der SD Karte
+		- interfaces setzen
+		- generate an new ssh-key
+		- scp "done2 an RMS"
+		- reboot
